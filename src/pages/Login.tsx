@@ -4,19 +4,25 @@ import { Form, Input, Button } from "antd";
 import { Link } from "react-router-dom";
 import { api } from "../axiosClient";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUser } from "../slices/authSlice";
 
 export const Login: React.FC = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const handleLogin = async () => {
         const data = form.getFieldsValue()
         const response = await api.post("/auth/login", data)
 
         if (response.status === 200) {
+            const responseUser = await api.get("/auth/get-user")
+            if (responseUser.status === 200) {
+                dispatch(setUser(responseUser.data.user))
+            }
             navigate("/quiz-categories")
         }
-
     };
 
     return (

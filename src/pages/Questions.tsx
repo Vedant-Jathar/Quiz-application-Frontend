@@ -1,76 +1,56 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../store";
-
-// Example questions type
-interface Question {
-    id: number;
-    question: string;
-    options: string[];
-    answer: string
-    category: string
-    difficulty: string
-}
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../axiosClient";
+import { selectedAnswer, setQuestions } from "../slices/quizSlice";
+import { useState } from "react";
+import type { Question } from "../types";
+import { useNavigate } from "react-router-dom";
 
 const QuizPage = () => {
 
     const quizDetails = useSelector((state: RootState) => state.quiz)
+    const authDetails = useSelector((state: RootState) => state.auth)
+    const dispatch = useDispatch()
+    const [answers, setAnswers] = useState<Record<number, string>>({})
 
-    const { data:}
+    const { data: questions } = useQuery({
+        queryKey: ["getQuestions"],
+        queryFn: async () => {
+            const data = {
+                category: quizDetails.category,
+                difficulty: quizDetails.difficulty,
+            }
+            const response = await api.post("/questions/get-questions", data)
+            dispatch(setQuestions(response.data.questions))
+            return response.data.questions
+        }
+    })
 
-    const questions: Question[] = [{
-        "id": 218,
-        "question": "What is the purpose of the `useCallback` hook?",
-        "options": [
-            "To memoize state variables.",
-            "To memoize function calls, preventing unnecessary re-creations.",
-            "To memoize components.",
-            "To memoize event handlers."
-        ],
-        "answer": "To memoize function calls, preventing unnecessary re-creations.",
-        "difficulty": "hard",
-        "category": "React"
-    },
-    {
-        "id": 219,
-        "question": "What is the primary use case for the `useRef` hook?",
-        "options": [
-            "To manage the component's state.",
-            "To perform side effects in functional components.",
-            "To create a reference that persists across renders, often used to access DOM elements.",
-            "To optimize component rendering."
-        ],
-        "answer": "To create a reference that persists across renders, often used to access DOM elements.",
-        "difficulty": "medium",
-        "category": "React"
-    },
-    {
-        "id": 220,
-        "question": "What is the `children` prop in React?",
-        "options": [
-            "A prop used to pass data to a component.",
-            "A prop used to define the visual style of a component.",
-            "A prop used to render a list of components.",
-            "A prop that represents the content nested inside a component."
-        ],
-        "answer": "A prop that represents the content nested inside a component.",
-        "difficulty": "medium",
-        "category": "React"
-    }
-    ]
     const navigate = useNavigate();
-    const [answers, setAnswers] = useState<Record<number, string>>({});
 
-    const handleSelect = (questionId: number, option: string) => {
-        setAnswers((prev) => ({ ...prev, [questionId]: option }));
+    const handleSelect = (questionId: number, answer: string) => {
+        dispatch(selectedAnswer({ questionId, answer }))
+        setAnswers((prev) => ({ ...prev, [questionId]: answer }))
     };
 
-    const handleSubmit = () => {
-        // You can send 'answers' to backend here
-        console.log("Submitted Answers:", answers);
-        navigate("/quiz-result"); // navigate to result page
+    const handleSubmit = async () => {
+        if (quizDetails.questions.length > Object.keys(quizDetails.answers).length){
+            alert("Answer all questions")
+            return
+        }
+            const data = {
+                category: quizDetails.category,
+                difficulty: quizDetails.difficulty,
+                questions: quizDetails.questions,
+                userAnswers: quizDetails.answers,
+                user: authDetails.user
+            }
+
+        await api.post("/result/get-result?to_be_saved=true", data)
+
+        navigate("/result"); // navigate to result page
     };
 
     return (
@@ -84,7 +64,7 @@ const QuizPage = () => {
             </motion.h1>
 
             <div className="w-full max-w-3xl flex flex-col gap-6">
-                {questions.map((q, idx) => (
+                {questions?.map((q: Question, idx: number) => (
                     <motion.div
                         key={q.id}
                         initial={{ opacity: 0, y: 20 }}
@@ -100,8 +80,7 @@ const QuizPage = () => {
                                 <button
                                     key={opt}
                                     onClick={() => handleSelect(q.id, opt)}
-                                    className={`py-2 px-4 rounded-xl text-left border-2 transition 
-                    ${answers[q.id] === opt ? "border-green-400 bg-green-900" : "border-gray-700 hover:border-gray-400"}`}
+                                    className={`py-2 px-4 rounded-xl text-left border-2 transition ${answers[q.id] === opt ? "bg-green-400" : ""}`}
                                 >
                                     {opt}
                                 </button>
