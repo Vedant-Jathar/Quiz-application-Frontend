@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { setCategory } from "../slices/quizSlice";
 import { useNavigate } from "react-router-dom";
 
+
 export const Categories: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch()
@@ -23,6 +24,17 @@ export const Categories: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-10">
+
+      <div className="absolute top-8 right-8">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate("/quiz-history")}
+          className="px-6 py-3 cursor-pointer bg-gradient-to-r from-green-400 to-emerald-600 text-white font-semibold rounded-full shadow-lg hover:shadow-2xl transition-all duration-300"
+        >
+          View Past Scores
+        </motion.button>
+      </div>
       {/* Title */}
       <h1 className="text-5xl font-extrabold text-gray-800 mb-12 drop-shadow-lg">
         Select a <span className="text-indigo-600">Quiz</span>
@@ -51,6 +63,9 @@ export const Categories: React.FC = () => {
           </motion.div>
         ))}
       </div>
+
+
+
     </div>
   );
 };

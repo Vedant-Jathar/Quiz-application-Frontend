@@ -41,6 +41,17 @@ const DifficultyPage = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-black flex flex-col items-center justify-center px-6">
+            <div className="absolute top-8 right-8">
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate("/quiz-history")}
+                    className="px-6 py-3 cursor-pointer bg-gradient-to-r from-green-400 to-emerald-600 text-white font-semibold rounded-full shadow-lg hover:shadow-2xl transition-all duration-300"
+                >
+                    View Past Scores
+                </motion.button>
+            </div>
+            
             <motion.h1
                 className="text-4xl md:text-5xl font-bold text-white mb-10 text-center"
                 initial={{ opacity: 0, y: -20 }}

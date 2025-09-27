@@ -4,6 +4,7 @@ import type { RootState } from "../store";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../axiosClient";
 import type { ReviewedAns } from "../types";
+import { motion } from "framer-motion";
 
 export default function ResultPage() {
     const navigate = useNavigate();
@@ -27,6 +28,16 @@ export default function ResultPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center p-6">
+            <div className="absolute top-8 right-8">
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate("/quiz-history")}
+                    className="px-6 py-3 cursor-pointer bg-gradient-to-r from-green-400 to-emerald-600 text-white font-semibold rounded-full shadow-lg hover:shadow-2xl transition-all duration-300"
+                >
+                    View Past Scores
+                </motion.button>
+            </div>
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl p-8">
                 {/* Header */}
                 <h1 className="text-3xl font-bold text-center text-gray-800">
